@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "62.3.1"
+    helm:
+      values: |
+        prometheus:
+          prometheusSpec:
+            replicas: 1
+            retention: 30d
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: standard-gp3
+                  resources:
+                    requests:
+                      storage: 100Gi
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "2Gi"
+              limits:
+                memory: "4Gi"
+
+        grafana:
+          replicas: 1
+          adminPassword: "change-me-immediately"
+          persistence:
+            enabled: true
+            storageClassName: standard-gp3
+            size: 10Gi
+          additionalDataSources:
+            - name: Strimzi Kafka
+              type: prometheus
+              url: http://prometheus-operated.monitoring.svc:9090
+
+        # Kafka-specific recording rules and dashboards
+        additionalPrometheusRulesMap:
+          kafka-rules:
+            groups:
+              - name: kafka.rules
+                rules:
+                  - alert: KafkaUnderReplicatedPartitions
+                    expr: kafka_server_replicamanager_underreplicatedpartitions > 0
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Kafka has under-replicated partitions"
+                      description: "{{ $labels.instance }} has {{ $value }} under-replicated partitions"
+                  - alert: KafkaActiveControllerCount
+                    expr: kafka_controller_kafkacontroller_activecontrollercount != 1
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "No active Kafka controller"
+
+        alertmanager:
+          enabled: true
+          alertmanagerSpec:
+            replicas: 1
+
+        prometheusOperator:
+          replicas: 1
+
+        kube-state-metrics:
+          replicas: 1
+
+        prometheus-node-exporter: {}
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

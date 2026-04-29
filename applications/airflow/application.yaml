@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    repoURL: https://airflow.apache.org
+    chart: airflow
+    targetRevision: "1.13.0"
+    helm:
+      values: |
+        executor: CeleryExecutor
+        airflowVersion: "2.9.0"
+        defaultAirflowTag: "2.9.0"
+        images:
+          airflow:
+            repository: apache/airflow
+            tag: "2.9.0"
+        webserver:
+          service:
+            type: ClusterIP
+        scheduler:
+          replicas: 1
+        workers:
+          replicas: 1
+        triggerer:
+          enabled: false
+        postgresql:
+          enabled: false  # We'll use external postgres if needed
+        redis:
+          enabled: true
+        persistence:
+          enabled: true
+          storageClass: standard-gp3
+          size: 20Gi
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        webserverSecretKey: "my-webserver-secret-key"
+        fernetKey: "my-fernet-key"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: airflow
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

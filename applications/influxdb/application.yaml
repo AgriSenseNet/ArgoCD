@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: influxdb
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    repoURL: https://helm.influxdata.com/
+    chart: influxdb2
+    targetRevision: "2.1.0"
+    helm:
+      values: |
+        image:
+          repository: influxdb
+          tag: "2.7"
+        adminUser:
+          organization: "smart_agri"
+          bucket: "sensor_data"
+          user: "admin"
+          password: "admin123"
+          token: "my-super-secret-auth-token"
+        persistence:
+          enabled: true
+          storageClass: standard-gp3
+          size: 20Gi
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: influxdb
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
