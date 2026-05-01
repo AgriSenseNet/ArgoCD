@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: default
+  source:
+    repoURL: https://istio-release.storage.googleapis.com/charts
+    chart: gateway
+    targetRevision: "1.29.2"
+    helm:
+      values: |
+        replicaCount: 1
+        service:
+          type: NodePort
+          ports:
+          - name: http2
+            port: 80
+            protocol: TCP
+            targetPort: 8080
+            nodePort: 30080
+          - name: https
+            port: 443
+            protocol: TCP
+            targetPort: 8443
+            nodePort: 30443
+          - name: postgres
+            port: 5432
+            protocol: TCP
+            targetPort: 5432
+            nodePort: 30543
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: istio-ingress
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
+      - ServerSideApply=true

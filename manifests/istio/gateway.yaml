@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: istio-gateway
+  namespace: istio-ingress
+spec:
+  selector:
+    istio: gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*.lolcat.top"
+  - port:
+      number: 5432
+      name: tcp-postgres
+      protocol: TCP
+    hosts:
+    - "postgres.lolcat.top"
