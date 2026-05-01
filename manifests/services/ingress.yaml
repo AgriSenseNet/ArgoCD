@@ -36,7 +36,7 @@ spec:
     - destination:
         host: influxdb-influxdb2.influxdb.svc.cluster.local
         port:
-          number: 8086
+          number: 80
 
 ---
 apiVersion: networking.istio.io/v1beta1
