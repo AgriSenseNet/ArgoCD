@@ -29,10 +29,32 @@ spec:
           replicas: 1
         triggerer:
           enabled: false
+        migrateDatabaseJob:
+          useHelmHooks: false
+        createUserJob:
+          useHelmHooks: false
         postgresql:
-          enabled: false  # We'll use external postgres if needed
+          enabled: false
+        data:
+          metadataConnection:
+            user: postgres
+            pass: test
+            host: postgres-postgresql.postgres
+            port: 5432
+            db: airflow
+            protocol: postgresql
+            sslmode: disable
+          resultBackendConnection:
+            user: postgres
+            pass: test
+            host: postgres-postgresql.postgres
+            port: 5432
+            db: airflow
+            protocol: postgresql
+            sslmode: disable
         redis:
           enabled: true
+          password: "airflow-redis-123"
         persistence:
           enabled: true
           storageClass: standard-gp3
