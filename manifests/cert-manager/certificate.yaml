@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cropwise-garden-wildcard
+  namespace: istio-ingress
+spec:
+  secretName: cropwise-garden-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.cropwise.garden"
+  dnsNames:
+  - "*.cropwise.garden"
+  - "cropwise.garden"

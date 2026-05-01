@@ -75,6 +75,8 @@ spec:
           brokers:
             - broker: 0
               nodePort: 32101
+              advertisedHost: kafka.cropwise.garden
+              advertisedPort: 9095
 
     config:
       # Replication and durability

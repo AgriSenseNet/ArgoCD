@@ -5,7 +5,7 @@ metadata:
   namespace: postgres
 spec:
   hosts:
-  - postgres.lolcat.top
+  - postgres.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
   tcp:
@@ -25,7 +25,7 @@ metadata:
   namespace: influxdb
 spec:
   hosts:
-  - influxdb.lolcat.top
+  - influxdb.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
   http:
@@ -46,7 +46,7 @@ metadata:
   namespace: airflow
 spec:
   hosts:
-  - airflow.lolcat.top
+  - airflow.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
   http:
@@ -67,7 +67,7 @@ metadata:
   namespace: vault
 spec:
   hosts:
-  - vault.lolcat.top
+  - vault.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
   http:

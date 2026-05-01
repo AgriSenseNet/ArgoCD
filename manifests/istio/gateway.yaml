@@ -8,14 +8,25 @@ spec:
     istio: gateway
   servers:
   - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: cropwise-garden-tls
+    hosts:
+    - "*.cropwise.garden"
+  - port:
       number: 80
       name: http
       protocol: HTTP
+    tls:
+      httpsRedirect: true
     hosts:
-    - "*.lolcat.top"
+    - "*.cropwise.garden"
   - port:
       number: 5432
       name: tcp-postgres
       protocol: TCP
     hosts:
-    - "postgres.lolcat.top"
+    - "postgres.cropwise.garden"

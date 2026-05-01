@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   hosts:
-  - argocd.lolcat.top
+  - argocd.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
   http:
