@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: registry-1.docker.io/bitnamicharts
+    chart: keycloak
+    targetRevision: "25.2.0"
+    helm:
+      values: |
+        global:
+          security:
+            allowInsecureImages: true
+        image:
+          registry: docker.io
+          repository: bitnamilegacy/keycloak
+          tag: "26.3.3-debian-12-r0"
+        auth:
+          adminUser: admin
+          adminPassword: "admin"
+        replicaCount: 1
+        resourcesPreset: nano
+        startupProbe:
+          enabled: true
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          successThreshold: 1
+        readinessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        livenessProbe:
+          initialDelaySeconds: 30
+        postgresql:
+          enabled: false
+        externalDatabase:
+          host: postgresql.postgres.svc.cluster.local
+          port: 5432
+          user: postgres
+          password: "test"
+          database: keycloak
+        persistence:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keycloak
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
