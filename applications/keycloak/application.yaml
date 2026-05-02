@@ -40,13 +40,7 @@ spec:
         livenessProbe:
           initialDelaySeconds: 30
         postgresql:
-          enabled: false
-        externalDatabase:
-          host: postgresql.postgres.svc.cluster.local
-          port: 5432
-          user: postgres
-          password: "test"
-          database: keycloak
+          enabled: true
         persistence:
           enabled: false
         metrics:
