@@ -23,7 +23,10 @@ spec:
         - name: agri-dashboard
           image: ghcr.io/agrisensenet/agri-dashboard@sha256:74662d4a4990a55365e03f0ff4efaf84ce76d6f0f44fb7e8e233dfb5df0e77b6
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
+            - name: metrics
+              containerPort: 9113
           resources:
             requests:
               cpu: 50m
@@ -38,9 +41,15 @@ kind: Service
 metadata:
   name: agri-dashboard
   namespace: agri-dashboard
+  labels:
+    app.kubernetes.io/name: agri-dashboard
 spec:
   selector:
     app: agri-dashboard
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 80
+    - name: metrics
+      port: 9113
+      targetPort: 9113

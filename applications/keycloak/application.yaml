@@ -49,6 +49,12 @@ spec:
           database: keycloak
         persistence:
           enabled: false
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+            labels:
+              release: kube-prometheus-stack
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak

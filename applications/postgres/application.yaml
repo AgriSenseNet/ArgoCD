@@ -31,6 +31,12 @@ spec:
           database: "smart_agri_c2"
         readReplicas:
           replicaCount: 0
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+            labels:
+              release: kube-prometheus-stack
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres

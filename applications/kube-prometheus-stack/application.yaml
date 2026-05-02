@@ -30,6 +30,11 @@ spec:
                 memory: "2Gi"
               limits:
                 memory: "4Gi"
+            # Pick up ServiceMonitors/PodMonitors from all namespaces regardless of labels
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorNamespaceSelector: {}
+            podMonitorNamespaceSelector: {}
 
         grafana:
           replicas: 1
@@ -43,7 +48,7 @@ spec:
               type: prometheus
               url: http://prometheus-operated.monitoring.svc:9090
 
-        # Kafka-specific recording rules and dashboards
+        # Recording rules and alerts
         additionalPrometheusRulesMap:
           kafka-rules:
             groups:
@@ -64,6 +69,83 @@ spec:
                       severity: critical
                     annotations:
                       summary: "No active Kafka controller"
+          istio-rules:
+            groups:
+              - name: istio.rules
+                rules:
+                  - alert: IstioHighRequestLatency
+                    expr: histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket[5m])) by (le, destination_service)) > 1000
+                    for: 5m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "High p99 latency on {{ $labels.destination_service }}"
+                      description: "p99 latency is {{ $value }}ms"
+                  - alert: IstioHighErrorRate
+                    expr: sum(rate(istio_requests_total{response_code=~"5.*"}[5m])) by (destination_service) / sum(rate(istio_requests_total[5m])) by (destination_service) > 0.05
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "High 5xx error rate on {{ $labels.destination_service }}"
+                      description: "Error rate is {{ $value | humanizePercentage }}"
+                  - alert: IstiodUnavailable
+                    expr: up{job="istiod"} == 0
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "istiod is down"
+          postgres-rules:
+            groups:
+              - name: postgres.rules
+                rules:
+                  - alert: PostgresDown
+                    expr: pg_up == 0
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "PostgreSQL is down"
+                  - alert: PostgresHighConnections
+                    expr: sum(pg_stat_activity_count) by (instance) > 80
+                    for: 5m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "PostgreSQL high connection count on {{ $labels.instance }}"
+                  - alert: PostgresReplicationLag
+                    expr: pg_replication_lag > 30
+                    for: 5m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "PostgreSQL replication lag > 30s"
+          certmanager-rules:
+            groups:
+              - name: certmanager.rules
+                rules:
+                  - alert: CertificateExpiringSoon
+                    expr: certmanager_certificate_expiration_timestamp_seconds - time() < 7 * 24 * 3600
+                    for: 1h
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Certificate {{ $labels.name }} expires in less than 7 days"
+                  - alert: CertificateNotReady
+                    expr: certmanager_certificate_ready_status{condition="True"} == 0
+                    for: 10m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Certificate {{ $labels.name }} is not ready"
+                  - alert: CertManagerDown
+                    expr: up{job="cert-manager"} == 0
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "cert-manager is down"
 
         alertmanager:
           enabled: true
