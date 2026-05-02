@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: agri-dashboard
+  namespace: agri-dashboard
+spec:
+  hosts:
+  - cropwise.garden
+  gateways:
+  - istio-ingress/istio-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: agri-dashboard.agri-dashboard.svc.cluster.local
+        port:
+          number: 80
