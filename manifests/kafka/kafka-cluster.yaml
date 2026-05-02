@@ -105,6 +105,13 @@ spec:
       # Compression
       compression.type: lz4
 
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics
+          key: kafka-metrics-config.yml
+
   entityOperator:
     topicOperator:
       resources:
