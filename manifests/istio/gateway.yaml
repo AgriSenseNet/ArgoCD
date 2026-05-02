@@ -16,6 +16,7 @@ spec:
       credentialName: cropwise-garden-tls
     hosts:
     - "*.cropwise.garden"
+    - "cropwise.garden"
   - port:
       number: 80
       name: http
@@ -24,6 +25,7 @@ spec:
       httpsRedirect: true
     hosts:
     - "*.cropwise.garden"
+    - "cropwise.garden"
   - port:
       number: 5432
       name: tcp-postgres

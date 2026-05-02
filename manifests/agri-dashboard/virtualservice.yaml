@@ -5,6 +5,7 @@ metadata:
   namespace: agri-dashboard
 spec:
   hosts:
+  - cropwise.garden
   - www.cropwise.garden
   gateways:
   - istio-ingress/istio-gateway
