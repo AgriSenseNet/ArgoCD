@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: agri-dashboard
-          image: ghcr.io/agrisensenet/agri-dashboard@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          image: ghcr.io/agrisensenet/agri-dashboard@sha256:74662d4a4990a55365e03f0ff4efaf84ce76d6f0f44fb7e8e233dfb5df0e77b6
           ports:
             - containerPort: 80
           resources:
