@@ -82,8 +82,8 @@ spec:
                 revision: 3
                 datasource: Prometheus
               kafka-strimzi:
-                gnetId: 7589
-                revision: 5
+                gnetId: 24626
+                revision: 1
                 datasource: Prometheus
               keycloak:
                 gnetId: 19659
