@@ -47,6 +47,48 @@ spec:
             - name: Strimzi Kafka
               type: prometheus
               url: http://prometheus-operated.monitoring.svc:9090
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: imported
+                  orgId: 1
+                  folder: "Imported"
+                  type: file
+                  disableDeletion: false
+                  editable: true
+                  options:
+                    path: /var/lib/grafana/dashboards/imported
+          dashboards:
+            imported:
+              nginx:
+                gnetId: 12708
+                revision: 1
+                datasource: Prometheus
+              postgresql:
+                gnetId: 9628
+                revision: 7
+                datasource: Prometheus
+              istio-control-plane:
+                gnetId: 7645
+                revision: 226
+                datasource: Prometheus
+              istio-mesh:
+                gnetId: 7636
+                revision: 226
+                datasource: Prometheus
+              cert-manager:
+                gnetId: 20842
+                revision: 3
+                datasource: Prometheus
+              kafka-strimzi:
+                gnetId: 7589
+                revision: 5
+                datasource: Prometheus
+              keycloak:
+                gnetId: 19659
+                revision: 1
+                datasource: Prometheus
 
         # Recording rules and alerts
         additionalPrometheusRulesMap:
