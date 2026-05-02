@@ -1,0 +1,104 @@
+name: Dynamic Image Update
+
+on:
+  repository_dispatch:
+    types: [update-image]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git credentials
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Find deployment YAML for app
+        id: find_files
+        run: |
+          APP="${{ github.event.client_payload.app }}"
+          echo "Searching for deployment YAMLs inside manifests/${APP}"
+
+          FILES=$(find "manifests/${APP}" -type f \( -name "deployment.yaml" -o -name "deployment.yml" \))
+
+          if [ -z "$FILES" ]; then
+            echo "No deployment YAML files found for app: ${APP}"
+            exit 1
+          fi
+
+          echo "FILES<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update image tag in deployment files
+        run: |
+          for file in ${{ steps.find_files.outputs.FILES }}; do
+            echo "Updating: $file"
+            sed -i "s|image: .*|image: ${{ github.event.client_payload.image }}|" "$file"
+          done
+
+      - name: Create branch, commit and push
+        id: create_branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          BRANCH="update-image/${{ github.event.client_payload.app }}-$(date +%s)"
+          echo "Creating branch $BRANCH"
+          git checkout -b "$BRANCH"
+
+          git add .
+          git commit -m "chore: update ${{ github.event.client_payload.app }} image to ${{ github.event.client_payload.image }}" || echo "No changes to commit"
+
+          git push -u origin "$BRANCH"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request via GitHub API
+        id: create_pr
+        env:
+          PR_TITLE: "chore: update ${{ github.event.client_payload.app }} image to ${{ github.event.client_payload.image }}"
+          PR_HEAD: ${{ steps.create_branch.outputs.branch }}
+        run: |
+          PAYLOAD=$(python3 -c "
+          import json, os
+          print(json.dumps({
+            'title': os.environ['PR_TITLE'],
+            'head': os.environ['PR_HEAD'],
+            'base': 'main',
+            'body': 'Automated image update triggered by repository dispatch.'
+          }))
+          ")
+
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls" \
+            -d "$PAYLOAD")
+
+          echo "GitHub API response: $RESPONSE"
+          PR_NUMBER=$(echo "$RESPONSE" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("number", ""))')
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Failed to create PR"
+            exit 1
+          fi
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Merge Pull Request via GitHub API
+        if: steps.create_pr.outputs.pr_number != ''
+        run: |
+          PR_NUMBER="${{ steps.create_pr.outputs.pr_number }}"
+          echo "Merging PR #$PR_NUMBER"
+          curl -s -X PUT \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/merge" \
+            -d '{"merge_method":"squash"}'

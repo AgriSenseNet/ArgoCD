@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agri-dashboard
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agri-dashboard
+  namespace: agri-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agri-dashboard
+  template:
+    metadata:
+      labels:
+        app: agri-dashboard
+    spec:
+      containers:
+        - name: agri-dashboard
+          image: ghcr.io/agrisensenet/agri-dashboard@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agri-dashboard
+  namespace: agri-dashboard
+spec:
+  selector:
+    app: agri-dashboard
+  ports:
+    - port: 80
+      targetPort: 80
