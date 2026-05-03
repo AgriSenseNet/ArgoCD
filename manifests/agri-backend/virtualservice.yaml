@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: agri-backend
+  namespace: agri-backend
+spec:
+  hosts:
+  - www.cropwise.garden
+  gateways:
+  - istio-ingress/istio-gateway
+  http:
+  - match:
+    - port: 3001
+      uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: agri-backend.agri-backend.svc.cluster.local
+        port:
+          number: 3001

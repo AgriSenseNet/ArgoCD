@@ -32,3 +32,9 @@ spec:
       protocol: TCP
     hosts:
     - "postgres.cropwise.garden"
+  - port:
+      number: 3001
+      name: http-agri-backend
+      protocol: HTTP
+    hosts:
+    - "www.cropwise.garden"

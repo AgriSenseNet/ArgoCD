@@ -32,6 +32,11 @@ spec:
             protocol: TCP
             targetPort: 5432
             nodePort: 31543
+          - name: agri-backend
+            port: 3001
+            protocol: TCP
+            targetPort: 3001
+            nodePort: 31301
         resources:
           requests:
             cpu: "100m"

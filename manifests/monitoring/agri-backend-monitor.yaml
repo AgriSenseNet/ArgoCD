@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: agri-backend
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - agri-backend
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agri-backend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
