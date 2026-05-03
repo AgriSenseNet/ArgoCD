@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: agri-backend
-          image: ghcr.io/agrisensenet/agri-backend@sha256:3f15844d31173eeb5057e80e3fd6d64c59898d00f4d3151a6da2c7b4c31fefd3
+          image: ghcr.io/agrisensenet/agri-backend@sha256:e89b60f4892fabf72f28b04b1672c4d3ec0894c48a6a5d1e42e83229a01bbb33
           ports:
             - name: http
               containerPort: 3001
