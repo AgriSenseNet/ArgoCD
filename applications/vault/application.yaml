@@ -20,7 +20,7 @@ spec:
           dataStorage:
             enabled: true
             storageClass: standard-gp3
-            size: 20Gi
+            size: 1Gi
           resources:
             requests:
               cpu: "250m"
@@ -29,8 +29,7 @@ spec:
               cpu: "500m"
               memory: "512Mi"
           dev:
-            enabled: true
-            devRootToken: "my-root-token"
+            enabled: false
         ui:
           enabled: true
         injector:

@@ -13,7 +13,7 @@ spec:
     targetRevision: "1.13.0"
     helm:
       values: |
-        executor: CeleryExecutor
+        executor: LocalExecutor
         airflowVersion: "2.9.0"
         defaultAirflowTag: "2.9.0"
         images:
@@ -24,8 +24,6 @@ spec:
           service:
             type: ClusterIP
         scheduler:
-          replicas: 1
-        workers:
           replicas: 1
         triggerer:
           enabled: false
@@ -44,21 +42,12 @@ spec:
             db: airflow
             protocol: postgresql
             sslmode: disable
-          resultBackendConnection:
-            user: postgres
-            pass: test
-            host: postgres-postgresql.postgres
-            port: 5432
-            db: airflow
-            protocol: postgresql
-            sslmode: disable
         redis:
-          enabled: true
-          password: "airflow-redis-123"
+          enabled: false
         persistence:
           enabled: true
           storageClass: standard-gp3
-          size: 20Gi
+          size: 2Gi
         resources:
           requests:
             cpu: "250m"

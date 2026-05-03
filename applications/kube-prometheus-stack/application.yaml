@@ -16,20 +16,20 @@ spec:
         prometheus:
           prometheusSpec:
             replicas: 1
-            retention: 30d
+            retention: 3d
             storageSpec:
               volumeClaimTemplate:
                 spec:
                   storageClassName: standard-gp3
                   resources:
                     requests:
-                      storage: 100Gi
+                      storage: 5Gi
             resources:
               requests:
                 cpu: "500m"
-                memory: "2Gi"
+                memory: "512Mi"
               limits:
-                memory: "4Gi"
+                memory: "1Gi"
             # Pick up ServiceMonitors/PodMonitors from all namespaces regardless of labels
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorSelectorNilUsesHelmValues: false

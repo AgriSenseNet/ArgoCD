@@ -15,7 +15,7 @@ spec:
     volumes:
       - id: 0
         type: persistent-claim
-        size: 500Gi
+        size: 5Gi
         class: kafka-gp3
         deleteClaim: false
   resources:
@@ -87,16 +87,16 @@ spec:
       transaction.state.log.min.isr: 1
 
       # Performance tuning for gp3 EBS
-      num.network.threads: 8
-      num.io.threads: 16
-      num.replica.fetchers: 4
+      num.network.threads: 3
+      num.io.threads: 8
+      num.replica.fetchers: 1
       socket.send.buffer.bytes: 1048576
       socket.receive.buffer.bytes: 1048576
       socket.request.max.bytes: 104857600
 
       # Log retention
-      log.retention.hours: 168
-      log.segment.bytes: 1073741824
+      log.retention.hours: 24
+      log.segment.bytes: 268435456
       log.retention.check.interval.ms: 300000
 
       # Disable auto topic creation — manage via KafkaTopic CRs

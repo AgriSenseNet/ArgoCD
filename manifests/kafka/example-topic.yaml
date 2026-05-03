@@ -6,10 +6,10 @@ metadata:
   labels:
     strimzi.io/cluster: kafka-cluster
 spec:
-  partitions: 3
+  partitions: 1
   replicas: 1
   config:
-    retention.ms: "604800000"        # 7 days
-    segment.bytes: "1073741824"      # 1 GiB
+    retention.ms: "86400000"         # 1 day
+    segment.bytes: "268435456"       # 256 MiB
     min.insync.replicas: "1"
     compression.type: lz4
