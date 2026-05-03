@@ -11,7 +11,11 @@ spec:
   - istio-ingress/istio-gateway
   http:
   - match:
-    - uri:
+    - port: 80
+      uri:
+        prefix: "/"
+    - port: 443
+      uri:
         prefix: "/"
     route:
     - destination:
